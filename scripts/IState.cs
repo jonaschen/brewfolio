@@ -4,6 +4,7 @@
 public interface IState
 {
     void Enter(CoffeeMachine machine); // State entry logic
-    void Execute(); // Logic to run every frame (optional for this spike)
-    void Exit(); // State exit logic
+    void Execute(CoffeeMachine machine); // Logic to run every frame (optional for this spike)
+    void Exit(CoffeeMachine machine); // State exit logic
 }
+

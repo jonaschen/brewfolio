@@ -1,17 +1,22 @@
-// GrindingState.cs
+// scripts/GrindingState.cs
 using Godot;
 
 public partial class GrindingState : IState
 {
-    public void Enter(CoffeeMachine machine)
+    public async void Enter(CoffeeMachine machine)
     {
-        GD.Print("Entered GRINDING state. Grinding beans... Press 'Space' to turn off.");
+        machine.UpdateStatusText("Grinding...");
+        
+        // start a 2-second timer. when it finishes, transition to the next state.
+        await machine.ToSignal(machine.GetTree().CreateTimer(2.0), SceneTreeTimer.SignalName.Timeout);
+        
+        machine.TransitionToState(machine.HeatingState);
     }
 
-    public void Execute() { }
+    public void Execute(CoffeeMachine machine) { }
 
-    public void Exit()
+    public void Exit(CoffeeMachine machine)
     {
-        GD.Print("...Stopping grinding and turning off.");
     }
 }
+
