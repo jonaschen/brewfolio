@@ -11,8 +11,8 @@ public partial class BrewingState : IState
         // Start a 5-second timer.
         await machine.ToSignal(machine.GetTree().CreateTimer(5.0), SceneTreeTimer.SignalName.Timeout);
         
-        // Transition back to the idle state using the PascalCase property
-        machine.TransitionToState(machine.IdleState);
+        // Transition to BrewCompleteState
+        machine.TransitionToState(machine.BrewCompleteState);
     }
 
     public void Execute(CoffeeMachine machine) { }
