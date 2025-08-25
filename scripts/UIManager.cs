@@ -36,7 +36,7 @@ public partial class UIManager : CanvasLayer
         
         _saveRecipePanel.Visible = false;
         //// 手動初始化第一次的狀態顯示
-        //HandleStateChanged(_coffeeMachine.IdleState); 
+        HandleStateChanged(_coffeeMachine.IdleState); 
     }
 
     // 當 CoffeeMachine 狀態改變時，這個方法會被呼叫

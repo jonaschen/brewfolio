@@ -1,21 +1,14 @@
-[gd_scene load_steps=2 format=3 uid="uid://pfyvyec1ugju"]
+[gd_scene load_steps=3 format=3 uid="uid://pfyvyec1ugju"]
 
 [ext_resource type="Script" uid="uid://dalhlkpraa7t2" path="res://scripts/CoffeeMachine.cs" id="1_o5qli"]
+[ext_resource type="Script" uid="uid://bxqdhequl2tg0" path="res://scripts/UIManager.cs" id="2_0wfyh"]
 
-[node name="CoffeeMachineNode" type="Node2D" node_paths=PackedStringArray("_body", "_heaterIndicator", "_brewingParticles", "_statusLabel", "_startButton", "_saveRecipePanel", "_recipeNameEdit", "_beanNameEdit", "_notesEdit", "_saveButton")]
+[node name="Main" type="Node2D"]
+
+[node name="CoffeeMachineNode" type="Node2D" parent="."]
 script = ExtResource("1_o5qli")
-_body = NodePath("Body")
-_heaterIndicator = NodePath("HeaterIndicator")
-_brewingParticles = NodePath("Spout/BrewingParticles")
-_statusLabel = NodePath("UI/StatusLabel")
-_startButton = NodePath("UI/StartButton")
-_saveRecipePanel = NodePath("SaveRecipePanel")
-_recipeNameEdit = NodePath("SaveRecipePanel/VBoxContainer/RecipeNameEdit")
-_beanNameEdit = NodePath("SaveRecipePanel/VBoxContainer/BeanNameEdit")
-_notesEdit = NodePath("SaveRecipePanel/VBoxContainer/NotesEdit")
-_saveButton = NodePath("SaveRecipePanel/SaveButton")
 
-[node name="Body" type="ColorRect" parent="."]
+[node name="Body" type="ColorRect" parent="CoffeeMachineNode"]
 offset_left = 274.0
 offset_top = 16.0
 offset_right = 574.0
@@ -23,7 +16,7 @@ offset_bottom = 416.0
 color = Color(1, 0.564706, 0.337255, 1)
 metadata/_edit_use_anchors_ = true
 
-[node name="HeaterIndicator" type="ColorRect" parent="."]
+[node name="HeaterIndicator" type="ColorRect" parent="CoffeeMachineNode"]
 offset_left = 517.0
 offset_top = 16.0
 offset_right = 567.0
@@ -31,16 +24,30 @@ offset_bottom = 66.0
 color = Color(0.729412, 1, 1, 1)
 metadata/_edit_use_anchors_ = true
 
-[node name="Spout" type="Node2D" parent="."]
+[node name="Spout" type="Node2D" parent="CoffeeMachineNode"]
 position = Vector2(418, 426)
 
-[node name="BrewingParticles" type="CPUParticles2D" parent="Spout"]
+[node name="BrewingParticles" type="CPUParticles2D" parent="CoffeeMachineNode/Spout"]
 position = Vector2(2, 1)
 emitting = false
 
-[node name="UI" type="CanvasLayer" parent="."]
+[node name="UIManager" type="CanvasLayer" parent="." node_paths=PackedStringArray("_coffeeMachine", "_heaterIndicator", "_brewingParticles", "_statusLabel", "_startButton", "_saveRecipePanel", "_recipeNameEdit", "_beanNameEdit", "_notesEdit", "_doseEdit", "_yieldEdit", "_timeEdit", "_saveButton")]
+script = ExtResource("2_0wfyh")
+_coffeeMachine = NodePath("../CoffeeMachineNode")
+_heaterIndicator = NodePath("../CoffeeMachineNode/HeaterIndicator")
+_brewingParticles = NodePath("../CoffeeMachineNode/Spout/BrewingParticles")
+_statusLabel = NodePath("StatusLabel")
+_startButton = NodePath("StartButton")
+_saveRecipePanel = NodePath("SaveRecipePanel")
+_recipeNameEdit = NodePath("SaveRecipePanel/VBoxContainer/RecipeNameEdit")
+_beanNameEdit = NodePath("SaveRecipePanel/VBoxContainer/BeanNameEdit")
+_notesEdit = NodePath("SaveRecipePanel/VBoxContainer/NotesEdit")
+_doseEdit = NodePath("SaveRecipePanel/VBoxContainer/DoseEdit")
+_yieldEdit = NodePath("SaveRecipePanel/VBoxContainer/YieldEdit")
+_timeEdit = NodePath("SaveRecipePanel/VBoxContainer/TimeEdit")
+_saveButton = NodePath("SaveRecipePanel/SaveButton")
 
-[node name="StatusLabel" type="Label" parent="UI"]
+[node name="StatusLabel" type="Label" parent="UIManager"]
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
@@ -54,7 +61,7 @@ grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 4
 
-[node name="StartButton" type="Button" parent="UI"]
+[node name="StartButton" type="Button" parent="UIManager"]
 anchors_preset = 7
 anchor_left = 0.5
 anchor_top = 1.0
@@ -67,7 +74,7 @@ offset_bottom = -4.0
 grow_horizontal = 2
 grow_vertical = 0
 
-[node name="SaveRecipePanel" type="PanelContainer" parent="."]
+[node name="SaveRecipePanel" type="PanelContainer" parent="UIManager"]
 visible = false
 custom_minimum_size = Vector2(500, 400)
 offset_left = 625.0
@@ -75,41 +82,64 @@ offset_top = 11.0
 offset_right = 1125.0
 offset_bottom = 411.0
 
-[node name="VBoxContainer" type="VBoxContainer" parent="SaveRecipePanel"]
+[node name="VBoxContainer" type="VBoxContainer" parent="UIManager/SaveRecipePanel"]
 layout_mode = 2
 theme_override_constants/separation = 3
 
-[node name="Label" type="Label" parent="SaveRecipePanel/VBoxContainer"]
+[node name="Label" type="Label" parent="UIManager/SaveRecipePanel/VBoxContainer"]
 layout_mode = 2
 text = "Recipe Name:"
 
-[node name="RecipeNameEdit" type="LineEdit" parent="SaveRecipePanel/VBoxContainer"]
+[node name="RecipeNameEdit" type="LineEdit" parent="UIManager/SaveRecipePanel/VBoxContainer"]
 layout_mode = 2
 placeholder_text = "EX: my morning special"
 
-[node name="Label2" type="Label" parent="SaveRecipePanel/VBoxContainer"]
+[node name="Label2" type="Label" parent="UIManager/SaveRecipePanel/VBoxContainer"]
 layout_mode = 2
 text = "Coffee Bean:"
 
-[node name="BeanNameEdit" type="LineEdit" parent="SaveRecipePanel/VBoxContainer"]
+[node name="BeanNameEdit" type="LineEdit" parent="UIManager/SaveRecipePanel/VBoxContainer"]
 layout_mode = 2
 
-[node name="Label3" type="Label" parent="SaveRecipePanel/VBoxContainer"]
+[node name="Label4" type="Label" parent="UIManager/SaveRecipePanel/VBoxContainer"]
+layout_mode = 2
+text = "Dose:"
+
+[node name="DoseEdit" type="LineEdit" parent="UIManager/SaveRecipePanel/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label5" type="Label" parent="UIManager/SaveRecipePanel/VBoxContainer"]
+layout_mode = 2
+text = "Yield:"
+
+[node name="YieldEdit" type="LineEdit" parent="UIManager/SaveRecipePanel/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label6" type="Label" parent="UIManager/SaveRecipePanel/VBoxContainer"]
+layout_mode = 2
+text = "Time"
+
+[node name="TimeEdit" type="LineEdit" parent="UIManager/SaveRecipePanel/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label3" type="Label" parent="UIManager/SaveRecipePanel/VBoxContainer"]
 layout_mode = 2
 text = "Note:"
 
-[node name="NotesEdit" type="TextEdit" parent="SaveRecipePanel/VBoxContainer"]
+[node name="NotesEdit" type="TextEdit" parent="UIManager/SaveRecipePanel/VBoxContainer"]
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 
-[node name="SaveButton" type="Button" parent="SaveRecipePanel"]
+[node name="SaveButton" type="Button" parent="UIManager/SaveRecipePanel"]
 layout_mode = 2
 size_flags_vertical = 8
 
-[node name="Label" type="Label" parent="SaveRecipePanel/SaveButton"]
+[node name="Label" type="Label" parent="UIManager/SaveRecipePanel/SaveButton"]
 layout_mode = 0
 offset_left = 50.0
 offset_top = -10.0
 offset_right = 90.0
 offset_bottom = 13.0
 text = "Save"
+
+[connection signal="pressed" from="UIManager/SaveRecipePanel/SaveButton" to="UIManager" method="OnSaveButtonPressed"]
