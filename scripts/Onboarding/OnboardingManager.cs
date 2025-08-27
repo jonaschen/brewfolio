@@ -77,6 +77,6 @@ public partial class OnboardingManager : Control
 		GD.Print($"專業模式: {_userProfileService.CurrentUserProfile.IsProModeEnabled}");
 		
 		// 切換到主場景
-		// GetTree().ChangeSceneToFile("res://scenes/main_scene.tscn");
+		GetTree().ChangeSceneToFile("res://scenes/main_scene.tscn");
 	}
 }

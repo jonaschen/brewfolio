@@ -1,4 +1,4 @@
-[gd_scene load_steps=3 format=3 uid="uid://clqtcbbeld47w"]
+[gd_scene load_steps=3 format=3 uid="uid://pfyvyec1ugju"]
 
 [ext_resource type="Script" uid="uid://dalhlkpraa7t2" path="res://scripts/CoffeeMachine.cs" id="1_o5qli"]
 [ext_resource type="Script" uid="uid://bxqdhequl2tg0" path="res://scripts/UIManager.cs" id="2_0wfyh"]
