@@ -11,13 +11,14 @@ config_version=5
 [application]
 
 config/name="brewfolio"
-run/main_scene="uid://7rxf3mqsvspr"
+run/main_scene="uid://c18jqkqnr4efu"
 config/features=PackedStringArray("4.4", "C#", "Mobile")
 config/icon="res://icon.svg"
 
 [autoload]
 
 UserProfileService="*res://scripts/Services/UserProfileService.cs"
+FirebaseManager="*res://scripts/Services/FirebaseManager.cs"
 
 [dotnet]
 

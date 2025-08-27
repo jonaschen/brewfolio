@@ -1,9 +1,53 @@
-[gd_scene format=3 uid="uid://cqmgc10b84tbk"]
+[gd_scene load_steps=2 format=3 uid="uid://cqmgc10b84tbk"]
 
-[node name="AuthScene" type="Control"]
+[ext_resource type="Script" uid="uid://caj2tk2wkug8s" path="res://scripts/AuthManager.cs" id="1_lvnvs"]
+
+[node name="AuthScene" type="Control" node_paths=PackedStringArray("_titleLabel", "_emailEdit", "_passwordEdit", "_feedbackLabel", "_submitButton", "_toggleButton")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("1_lvnvs")
+_titleLabel = NodePath("CenterContainer/VBoxContainer/TitleLabel")
+_emailEdit = NodePath("CenterContainer/VBoxContainer/EmailEdit")
+_passwordEdit = NodePath("CenterContainer/VBoxContainer/PasswordEdit")
+_feedbackLabel = NodePath("CenterContainer/VBoxContainer/FeedbackLabel")
+_submitButton = NodePath("CenterContainer/VBoxContainer/SubmitButton")
+_toggleButton = NodePath("CenterContainer/VBoxContainer/ToggleButton")
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer"]
+layout_mode = 2
+
+[node name="TitleLabel" type="Label" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+text = "(Login)"
+
+[node name="EmailEdit" type="LineEdit" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+placeholder_text = "\"Please enter your emali\""
+
+[node name="PasswordEdit" type="LineEdit" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+placeholder_text = "\"Please enter your password\""
+secret = true
+
+[node name="FeedbackLabel" type="Label" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="SubmitButton" type="Button" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+text = "Login"
+
+[node name="ToggleButton" type="Button" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+text = "\"Don't have an account yet? Click here to register\""
