@@ -83,5 +83,26 @@ public partial class UserProfileService : Node
             IsProModeEnabled = false
         };
     }
+
+    /// <summary>
+    /// Clears the user profile from the device and resets it to default.
+    /// </summary>
+    public void ClearProfile()
+    {
+        if (FileAccess.FileExists(SavePath))
+        {
+            var err = FileAccess.Open(SavePath, FileAccess.ModeFlags.Read);
+            if (err != null)
+            {
+                // Godot 4 requires a more complex way to delete files.
+                // You can't delete a file directly, you have to use the DirAccess object.
+                var dir = DirAccess.Open("user://");
+                dir.Remove(SavePath.Replace("user://", ""));
+                GD.Print("User profile deleted.");
+            }
+        }
+        // Reset the in-memory profile to default.
+        CreateDefaultProfile();
+    }
 }
 
