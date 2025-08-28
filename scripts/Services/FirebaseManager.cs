@@ -158,6 +158,9 @@ public partial class FirebaseManager : Node
     // --- Firebase 設定 ---
     private const string FirebaseApiKey = "AIzaSyDDk9ULI9qw-TT0C8UxsAL2F62tW4sJoSA";
 
+    // --- Public Accessors ---
+    public string GetApiKey() => FirebaseApiKey;
+
     // --- 服務實例 ---
     public FirebaseAuthProvider AuthProvider { get; private set; }
     public FirebaseAuthLink CurrentUser { get; private set; }
@@ -223,6 +226,15 @@ public partial class FirebaseManager : Node
             CurrentUser = null;
             return false;
         }
+    }
+
+    /// <summary>
+    /// Signs the current user out.
+    /// </summary>
+    public void SignOut()
+    {
+        CurrentUser = null;
+        GD.Print("User signed out.");
     }
 }
 

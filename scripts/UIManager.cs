@@ -1,18 +1,21 @@
 // scripts/UIManager.cs
 using Godot;
 using System.Globalization;
+using System.Collections.Generic;
 
 public partial class UIManager : CanvasLayer
 {
     [Export] private CoffeeMachine _coffeeMachine;
     
-    // --- 所有 UI 節點都由 UIManager 管理 ---
+    // --- UI Node References ---
     [Export] private ColorRect _heaterIndicator;
     [Export] private CpuParticles2D _brewingParticles;
     [Export] private Label _statusLabel;
     [Export] private Button _startButton;
+    private Button _logoutButton;
+    private VBoxContainer _recipeListContainer; // To display recipes
 
-    // --- 儲存表單相關節點 ---
+    // --- Save Form Nodes ---
     [Export] private PanelContainer _saveRecipePanel;
     [Export] private LineEdit _recipeNameEdit;
     [Export] private LineEdit _beanNameEdit;
@@ -22,92 +25,143 @@ public partial class UIManager : CanvasLayer
     [Export] private LineEdit _timeEdit;
     [Export] private Button _saveButton;
 
+    // --- Services ---
+    private RecipeRepository _recipeRepository;
+    private UserProfileService _userProfileService;
+    private FirebaseManager _firebaseManager;
+
+    // --- State ---
     private BrewLogRecord _currentLogRecord;
 
-    public override void _Ready()
+    public override async void _Ready()
     {
-        // 訂閱 CoffeeMachine 的事件
+        // Get service singletons
+        _recipeRepository = GetNode<RecipeRepository>("/root/RecipeRepository");
+        _userProfileService = GetNode<UserProfileService>("/root/UserProfileService");
+        _firebaseManager = GetNode<FirebaseManager>("/root/FirebaseManager");
+
+        // Subscribe to machine and repository events
         _coffeeMachine.OnStateChanged += HandleStateChanged;
         _coffeeMachine.OnBrewCompleted += HandleBrewCompleted;
+        _recipeRepository.RecipesUpdated += UpdateRecipeList;
         
-        // 連接 UI 按鈕事件
+        // Connect UI signals
         _startButton.Pressed += OnStartButtonPressed;
         _saveButton.Pressed += OnSaveButtonPressed;
         
         _saveRecipePanel.Visible = false;
-        //// 手動初始化第一次的狀態顯示
-        HandleStateChanged(_coffeeMachine.IdleState); 
+
+        // Create and configure the logout button
+        _logoutButton = new Button();
+        _logoutButton.Text = "Logout";
+        _logoutButton.Position = new Vector2(GetViewportRect().Size.X - 120, 20);
+        AddChild(_logoutButton);
+        _logoutButton.Pressed += OnLogoutButtonPressed;
+
+        // Create the recipe list container
+        _recipeListContainer = new VBoxContainer();
+        _recipeListContainer.Position = new Vector2(20, 60);
+        _recipeListContainer.Size = new Vector2(300, 400);
+        AddChild(_recipeListContainer);
+
+        // Initial UI update and data fetch
+        UpdateRecipeList();
+        await _recipeRepository.FetchRecipesFromServer();
     }
 
-    // 當 CoffeeMachine 狀態改變時，這個方法會被呼叫
+    private void UpdateRecipeList()
+    {
+        // Clear existing recipe entries
+        foreach (Node child in _recipeListContainer.GetChildren())
+        {
+            child.QueueFree();
+        }
+
+        // Add a header
+        var header = new Label();
+        header.Text = "Your Recipes:";
+        _recipeListContainer.AddChild(header);
+
+        // Get recipes from the cache and display them
+        List<BrewLogRecord> recipes = _recipeRepository.GetCachedRecipes();
+        if (recipes.Count == 0)
+        {
+            var emptyLabel = new Label();
+            emptyLabel.Text = "No recipes saved yet.";
+            _recipeListContainer.AddChild(emptyLabel);
+        }
+        else
+        {
+            foreach (var recipe in recipes)
+            {
+                var recipeLabel = new Label();
+                recipeLabel.Text = $"- {recipe.RecipeName} ({recipe.Dose}g -> {recipe.Yield}g)";
+                _recipeListContainer.AddChild(recipeLabel);
+            }
+        }
+    }
+
     private void HandleStateChanged(IState newState)
     {
-        // 更新狀態文字
         if (newState is IdleState) _statusLabel.Text = "Idle. Press Start.";
         else if (newState is GrindingState) _statusLabel.Text = "Grinding...";
         else if (newState is HeatingState) _statusLabel.Text = "Heating...";
         else if (newState is BrewingState) _statusLabel.Text = "Brewing...";
 
-        // 更新視覺元素
         _startButton.Disabled = !(newState is IdleState);
         _heaterIndicator.Color = (newState is HeatingState) ? new Color(1.0f, 0.5f, 0.5f) : new Color(0.5f, 0.5f, 1.0f);
         _brewingParticles.Emitting = (newState is BrewingState);
     }
     
-    // 當沖煮流程結束時，這個方法會被呼叫
     private void HandleBrewCompleted(SimulationParameters finalSimParams)
     {
-        GD.Print("UIManager received OnBrewCompleted event.");
-        // 收到事件後，建立一個新的日誌紀錄
         _currentLogRecord = new BrewLogRecord
         {
-            // 單向數據傳遞：從 SimulationParameters 填入初始值
             Dose = finalSimParams.Dose,
-            Yield = finalSimParams.TargetYield, // 假設萃取完成，使用目標值
-            BrewTime = finalSimParams.CurrentBrewTime, // 這裡我們還沒模擬計時，先用固定值
+            Yield = finalSimParams.TargetYield,
+            BrewTime = finalSimParams.CurrentBrewTime,
         };
         
-        // 將數據填入 UI 表單
         _doseEdit.Text = _currentLogRecord.Dose.ToString(CultureInfo.InvariantCulture);
         _yieldEdit.Text = _currentLogRecord.Yield.ToString(CultureInfo.InvariantCulture);
         _timeEdit.Text = _currentLogRecord.BrewTime.ToString(CultureInfo.InvariantCulture);
         
-        // 清空主觀筆記欄位
         _recipeNameEdit.Text = "";
         _beanNameEdit.Text = "";
         _notesEdit.Text = "";
 
-        // 顯示表單
         _saveRecipePanel.Visible = true;
     }
 
     private void OnStartButtonPressed()
     {
-        GD.Print("UIManager: Start Button was pressed!"); 
-        // UIManager 告訴 CoffeeMachine 開始工作
         _coffeeMachine.StartBrewing();
     }
     
-    private void OnSaveButtonPressed()
+    private async void OnSaveButtonPressed()
     {
-        GD.Print("OnSaveButtonPressed method was called!");
-        if (_currentLogRecord == null) {
-            GD.Print("Save failed: _currentLogRecord is null.");
-            return;
-        }
+        if (_currentLogRecord == null) return;
         
-        // 使用者在表單上的修改，只會更新 BrewLogRecord
         _currentLogRecord.RecipeName = _recipeNameEdit.Text;
         _currentLogRecord.BeanName = _beanNameEdit.Text;
         _currentLogRecord.Notes = _notesEdit.Text;
         _currentLogRecord.Dose = float.Parse(_doseEdit.Text, CultureInfo.InvariantCulture);
-        // ... 其他欄位 ...
+        _currentLogRecord.Yield = float.Parse(_yieldEdit.Text, CultureInfo.InvariantCulture);
+        _currentLogRecord.BrewTime = float.Parse(_timeEdit.Text, CultureInfo.InvariantCulture);
 
-        GD.Print("--- Final Log Record to be Saved ---");
-        GD.Print(_currentLogRecord.ToJson());
+        GD.Print("Saving recipe...");
+        await _recipeRepository.SaveRecipe(_currentLogRecord);
         
         _saveRecipePanel.Visible = false;
-        _currentLogRecord = null; // 清除當前紀錄
+        _currentLogRecord = null;
+    }
+
+    private void OnLogoutButtonPressed()
+    {
+        GD.Print("Logging out...");
+        _recipeRepository.ClearLocalCache();
+        _userProfileService.ClearProfile();
+        _firebaseManager.SignOut();
+        GetTree().ChangeSceneToFile("res://scenes/auth_scene.tscn");
     }
 }
-
